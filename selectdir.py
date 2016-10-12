@@ -8,7 +8,10 @@ import tkinter.messagebox as messagebox
 import time
 import threading
 import random
-#所有方法
+
+
+## 按运营商拆分
+# 在act函数处理文件时，负责把匹配结果写入到结果文件中
 def write2(line,csvfile2,csvfile3,csvfile4,csvfile5):
     try:
         n=0
@@ -40,6 +43,7 @@ def write2(line,csvfile2,csvfile3,csvfile4,csvfile5):
         csvfile5.write(str5)
     except Exception as err:
         messagebox.showinfo('错误信息',str(err))
+# 主体业务流程
 def act(file1,file2,file3,file4,file5,pathf='./',patht='./'):        #file1为输入文件,其他为输出文件
     try:
         global c
@@ -107,7 +111,7 @@ def act(file1,file2,file3,file4,file5,pathf='./',patht='./'):        #file1为�
         #messagebox.showinfo('错误信息',str(err))
         info=str(err)
         return info
-#匹配运营商
+# 浏览文件夹并调用act函数进行处理
 def scan_dir(pathf,patht):
     try:
         st['state']='disabled'
@@ -147,6 +151,10 @@ def scan_dir(pathf,patht):
     finally:
         st['state']='active'
         warn.grid_forget()
+
+
+## 国际号码处理
+# 对文件的第一行单独处理
 def write1_1(line,csvfile2):
     try:
         n=0
@@ -160,7 +168,7 @@ def write1_1(line,csvfile2):
         csvfile2.write(str2)
     except Exception as err:
         messagebox.showinfo('错误信息',str(err))
-#所有文件
+# 对文件的其他行统一处理
 def write2_1(line,csvfile2):
     try:
         n=0
@@ -232,7 +240,7 @@ def act_1(file1,file2):        #file1为输入文件,file2为输出文件
         info_1=''
     finally:
         return info_1
-#国际号码标识
+#浏览文件夹
 def scan_dir_1(pathf,patht):
     try:
         files=[]
@@ -260,6 +268,8 @@ def scan_dir_1(pathf,patht):
     finally:
         st['state']='active'
         warn.grid_forget()
+## 号码归属地匹配
+# 对文件filef进行归属地匹配，并写入到文件filet
 def city(filef,filet):
     try:
         global c
@@ -306,7 +316,7 @@ def city(filef,filet):
     except Exception as err:
         #messagebox.showinfo('错误信息',str(err))
         return str(err)
-#归属地匹配
+# 浏览文件夹
 def addcity(dir1,dir2):
     try:
         global c
@@ -321,11 +331,11 @@ def addcity(dir1,dir2):
         nfnum=1
         for f in files:
             if (f[-4:]=='.csv' or f[-4:]=='.txt') and f[-8:]!='_new.csv' and f[-8:]!='_new.txt' and os.path.isfile(dir1+'/'+f):
-                city_d[f]=city(filef=dir1+'/'+f,filet=dir2+'/'+f[0:-4]+'_new.csv')
+                city_d[f]=city(filef=dir1+'/'+f,filet=dir2+'/'+f[0:-4]+'_new'+f[-4:])
                 #print(city_d[f])
                 #threading.Thread(target=city,args=(dir1+'/'+f,dir2+'/'+f[0:-4]+'_new.csv')).start()
                 if len(city_d[f])==0:
-                    flist2.insert(tk.END,'    '+str(nfnum)+'.'+f[0:-4]+'_new.csv'+"\n")
+                    flist2.insert(tk.END,'    '+str(nfnum)+'.'+f[0:-4]+'_new'+f[-4:]+"\n")
                 else:
                     messagebox.showinfo('错误信息',city_d[f])
         '''
@@ -345,7 +355,8 @@ def addcity(dir1,dir2):
     finally:
         st['state']='active'
         warn.grid_forget()
-#大文件拆分
+## 大文件拆分
+# 浏览文件夹
 def scan_dir_2(pathf,patht):
     try:
         global c
@@ -377,6 +388,7 @@ def scan_dir_2(pathf,patht):
     finally:
         st['state']='active'
         warn.grid_forget()
+# 读文件，在handle函数中调用
 def readfile(start=0,stop=0,file='final.csv',code='gbk'):
     try:
         dic=[]
@@ -393,6 +405,7 @@ def readfile(start=0,stop=0,file='final.csv',code='gbk'):
         return dic
     except Exception as err:
         messagebox.showinfo('错误信息',str(err))
+# 对文件filef进行拆分，每次取内容时都掉用readfile函数
 def handle(filef,filet,code='gbk'):
     try:
         global c
@@ -415,14 +428,14 @@ def handle(filef,filet,code='gbk'):
                 f.close()
                 flist2.insert(tk.END,'    '+filet.split('/')[-1]+'_'+str(i)+'_'+li[i]+'条'+filef[-4:])
             else:
-                dic=readfile(start=stp,stop=0,file=filef,code=code)
+                dic=readfile(start=stp-1,stop=0,file=filef,code=code)
                 f=open(filet+'_'+str(i)+'_'+str(len(dic))+'条'+filef[-4:],'w',encoding=code,newline='')
                 f.writelines(dic)
                 f.close()
                 flist2.insert(tk.END,'    '+filet.split('/')[-1]+'_'+str(i)+'_'+str(len(dic))+'条'+filef[-4:])
     except Exception as err:
         messagebox.showinfo('错误信息',str(err))
-#生成随机号码
+## 生成随机号码
 def createpnums(patht):
     try:
         global c
@@ -445,6 +458,8 @@ def createpnums(patht):
     finally:
         st['state']='active'
         warn.grid_forget()
+## 文件编码转换
+# 把文件filef的编码转换成codet，并输出到文件filet中
 def changecode(filef,filet,codet):
     try:
         f1=open(filef,'rb')
@@ -461,6 +476,7 @@ def changecode(filef,filet,codet):
     finally:
         st['state']='active'
         warn.grid_forget()
+# 浏览文件夹
 def scan_dir_3(pathf,patht,code):
     try:
         files=os.listdir(pathf)
@@ -472,8 +488,46 @@ def scan_dir_3(pathf,patht,code):
     finally:
         st['state']='active'
         warn.grid_forget()
+def area_part(filef,patht):
+    pass
 
-
+def scan_dir_4(pathf,patht):
+    global c
+    try:
+        files=os.listdir(pathf)
+        if len(files)<1:
+            messagebox.showinfo('错误信息','输入文件夹内没有符合条件的文件')
+            st['state']='active'
+            warn.grid_forget()
+            return 0;
+        newfile=[]
+        for f in files:
+            if os.path.isfile(pathf+'/'+f) and (f[-4:]=='.csv' or f[-4:]=='.txt'):
+                with open(pathf+'/'+f) as ff:
+                    for line in ff:
+                        numstr = line.split()
+                        if len(numstr)>0:
+                            numstr=numstr[0]
+                        if numstr.isdigit() and len(numstr) == 11:
+                            area = dic_2.get(int(numstr[0:7]))
+                            if area is not None:
+                                area=area[0].split(' ')[0]
+                            else:
+                                area='无法匹配'
+                            newfile.append(area+f[-4:])
+                            with open(patht + '/' + area + f[-4:], 'a', encoding='utf-8', newline=None) as ft:
+                                ft.write(str(numstr) + "\n")
+                        else:
+                            with open(patht + '/无法匹配' + f[-4:], 'a', encoding='utf-8', newline=None) as ft:
+                                ft.write(str(numstr) + "\n")
+        newfile=set(newfile)
+        for nf in newfile:
+            flist2.insert(tk.END,nf)
+    except Exception as err:
+        messagebox.showinfo('错误信息',str(err))
+    finally:
+        st['state']='active'
+        warn.grid_forget()
 
 
 def sel1():
@@ -515,7 +569,7 @@ def sel2():
         flist2.delete(0,tk.END)
         flist2.insert(tk.END,'未选择文件夹')
 def start():
-    if (column.get().isdigit() and (v.get()==1 or v.get()==2 or v.get()==3 or v.get()==5)) or (column.get().replace(',','') and v.get()==4) or (v.get()==6):
+    if (column.get().isdigit() and (v.get()==1 or v.get()==2 or v.get()==3 or v.get()==5 or v.get()==7)) or (column.get().replace(',','') and v.get()==4) or (v.get()==6):
         try:
             global c
             global dir1
@@ -586,8 +640,18 @@ def start():
                     warn.grid(row=11,column=0,sticky=tk.W)
                     flist2.insert(tk.END,'+++++++++++++++++++++')
                     flist2.insert(tk.END,'新生成文件列表:'+"\n")
-                    #scan_dir_3(pathf=dir1,patht=dir2,code=opts.get())
                     threading.Thread(target=scan_dir_3,args=(dir1,dir2,opts.get())).start()
+                except Exception as err:
+                    st['state']='active'
+                    warn.grid_forget()
+                    messagebox.showinfo('错误信息',str(err))
+            if v.get()==7:
+                try:
+                    st['state']='disabled'
+                    warn.grid(row=11,column=0,sticky=tk.W)
+                    flist2.insert(tk.END,'+++++++++++++++++++++')
+                    flist2.insert(tk.END,'新生成文件列表:'+"\n")
+                    threading.Thread(target=scan_dir_4,args=(dir1,dir2)).start()
                 except Exception as err:
                     st['state']='active'
                     warn.grid_forget()
@@ -635,6 +699,12 @@ def pick():
         column.grid_forget()
         #column_label.grid_forget()
         options.grid(row=9,column=0,sticky=tk.W,padx=5)
+    if v.get()==7:
+        column.delete(0,tk.END)
+        column.insert(0,'1')
+        column_text.set('请输入列号')
+        column.grid(row=9,column=0,sticky=tk.W,padx=5)
+        options.grid_forget()
 
 
 root = tk.Tk()
@@ -665,6 +735,7 @@ tk.Radiobutton(frame2,text='归属城市标识',variable=v,value=3,command=pick)
 tk.Radiobutton(frame2,text='大文件拆分',variable=v,value=4,command=pick).grid(sticky=tk.W)
 tk.Radiobutton(frame2,text='生成随即号码',variable=v,value=5,command=pick).grid(sticky=tk.W)
 tk.Radiobutton(frame2,text='文件编码转换',variable=v,value=6,command=pick).grid(sticky=tk.W)
+tk.Radiobutton(frame2,text='按归属省拆分',variable=v,value=7,command=pick).grid(sticky=tk.W)
 column_text=tk.StringVar()
 column_text.set('请输入列号')
 column_label=tk.Label(frame2,textvariable=column_text,width=13,height=1)
